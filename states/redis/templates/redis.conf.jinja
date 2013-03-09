@@ -1,0 +1,198 @@
+# {{ pillar['message_do_not_modify'] }}
+
+# Redis config
+
+daemonize yes
+
+{% if pillar['redis']['pidfile'] is defined %}
+pidfile {{ pillar['redis']['pidfile'] }}
+{% else %}
+pidfile /var/db/redis/redis.pid
+{% endif %}
+
+{% if pillar['redis']['port'] is defined %}
+port {{ pillar['redis']['port'] }}
+{% else %}
+port 6379
+{% endif %}
+
+{% if pillar['redis']['bind'] is defined %}
+bind {{ pillar['redis']['bind'] }}
+{% endif -%}
+
+{% if pillar['redis']['loglevel'] is defined %}
+loglevel {{ pillar['redis']['loglevel'] }}
+{% else %}
+loglevel notice
+{% endif -%}
+
+{% if pillar['redis']['logfile'] is defined %}
+logfile {{ pillar['redis']['logfile'] }}
+{% else %}
+logfile /var/log/redis/redis.log
+{% endif -%}
+
+{% if pillar['redis']['syslog'] is defined %}
+syslog-enabled yes
+syslog-ident {{ pillar['redis']['syslog']['ident'] }}
+syslog-facility {{ pillar['redis']['syslog']['facility'] }}
+{% endif -%}
+
+{% if pillar['redis']['databases'] is defined %}
+databases {{ pillar['redis']['databases'] }}
+{% else %}
+databases 16
+{% endif -%}
+
+{% if pillar['redis']['snapshots'] is defined %}
+{% for s in pillar['redis']['snapshots'] %}
+save {{ s }}
+{% endfor %}
+{% else %}
+save 900 1
+save 300 10
+save 60 10000
+{% endif -%}
+
+{% if pillar['redis']['rdbcompression'] is defined %}
+rdbcompression {{ pillar['redis']['rdbcompression'] }}
+{% else %}
+rdbcompression yes
+{% endif -%}
+
+{% if pillar['redis']['dbfilename'] is defined %}
+dbfilename {{ pillar['redis']['dbfilename'] }}
+{% else %}
+dbfilename dump.rdb
+{% endif -%}
+
+{% if pillar['redis']['root_dir'] is defined %}
+root_dir {{ pillar['redis']['root_dir'] }}
+{% else %}
+root_dir /var/db/redis
+{% endif -%}
+
+{% if pillar['redis']['slave-serve-stale-data'] is defined %}
+slave-serve-stale-data {{ pillar['redis']['slave-serve-state-data'] }}
+{% else %}
+slave-serve-stale-data yes
+{% endif -%}
+
+{% if pillar['redis']['pass'] is defined %}
+requirepass {{ pillar['redis']['pass'] }}
+{% endif -%}
+
+{% if pillar['redis']['maxmemory'] is defined %}
+maxmemory {{ pillar['redis']['maxmemory'] }}
+{% else %}
+maxmemory 8053063680
+{% endif -%}
+
+{% if pillar['redis']['maxmemory-policy'] is defined %}
+maxmemory-policy {{ pillar['redis']['maxmemory-policy'] }}
+{% else %}
+maxmemory-policy volatile-lru
+{% endif -%}
+
+{% if pillar['redis']['appendonly'] is defined %}
+appendonly {{ pillar['redis']['appendonly'] }}
+{% else %}
+appendonly no
+{% endif -%}
+
+{% if pillar['redis']['appendfsync'] is defined %}
+appendfsync {{ pillar['redis']['appendfsync'] }}
+{% else %}
+appendfsync everysec
+{% endif -%}
+
+{% if pillar['redis']['no-appendfsync-on-rewrite'] is defined %}
+no-appendfsync-on-rewrite {{ pillar['redis']['no-appendfsync-on-rewrite'] }}
+{% else %}
+no-appendfsync-on-rewrite no
+{% endif -%}
+
+{% if pillar['redis']['auto-aof-rewrite-percentage'] is defined %}
+auto-aof-rewrite-percentage {{ pillar['redis']['auto-aof-rewrite-percentage'] }}
+{% else %}
+auto-aof-rewrite-percentage 100
+{% endif -%}
+
+{% if pillar['redis']['auto-aof-rewrite-min-size'] is defined %}
+auto-aof-rewrite-min-size {{ pillar['redis']['auto-aof-rewrite-min-size'] }}
+{% else %}
+auto-aof-rewrite-min-size 64mb
+{% endif -%}
+
+{% if pillar['redis']['slowlog-log-slower-than'] is defined %}
+slowlog-log-slower-than {{ pillar['redis']['slowlog-log-slower-than'] }}
+{% else %}
+slowlog-log-slower-than 10000
+{% endif -%}
+
+{% if pillar['redis']['slowlog-max-len'] is defined %}
+slowlog-max-len {{ pillar['redis']['slowlog-max-len'] }}
+{% else %}
+slowlog-max-len 1024
+{% endif -%}
+
+{% if pillar['redis']['appendfsync'] is defined %}
+appendfsync {{ pillar['redis']['appendfsync'] }}
+{% else %}
+appendfsync everysec
+{% endif -%}
+
+{% if pillar['redis']['vm'] is defined %}
+
+{% if pillar['redis']['vm']['enabled'] is defined %}
+vm-enabled {{ pillar['redis']['vm']['enabled'] }}
+{% else %}
+vm-enabled no
+{% endif -%}
+
+{% if pillar['redis']['vm']['swap-file'] is defined %}
+vm-swap-file {{ pillar['redis']['vm']['swap-file'] }}
+{% else %}
+vm-swap-file /tmp/redis.swap
+{% endif -%}
+
+{% if pillar['redis']['vm']['max-memory'] is defined %}
+vm-max-memory {{ pillar['redis']['vm']['max-memory'] }}
+{% else %}
+vm-max-memory 0
+{% endif -%}
+
+{% if pillar['redis']['vm']['page-size'] is defined %}
+vm-page-size {{ pillar['redis']['vm']['page-size'] }}
+{% else %}
+vm-page-size 32
+{% endif -%}
+
+{% if pillar['redis']['vm']['pages'] is defined %}
+vm-pages {{ pillar['redis']['vm']['pages'] }}
+{% else %}
+vm-pages 134217728
+{% endif -%}
+
+{% if pillar['redis']['vm']['max-threads'] is defined %}
+vm-max-threads {{ pillar['redis']['vm']['max-threads'] }}
+{% else %}
+vm-max-threads 4
+{% endif -%}
+
+{% endif -%}
+
+############################### ADVANCED CONFIG ###############################
+
+hash-max-zipmap-entries 512
+hash-max-zipmap-value 64
+
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+
+set-max-intset-entries 512
+
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+
+activerehashing yes

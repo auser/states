@@ -1,0 +1,66 @@
+*filter
+
+# Flush
+-F
+
+# Policies
+-P INPUT DROP
+-P FORWARD ACCEPT
+
+# Allow all loopback (lo0) traffic
+-A INPUT -i lo -j ACCEPT
+
+# Accept all established inbound connections
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Drop all traffic to 127/8 that doesn't use lo0
+-A INPUT ! -i lo -d 127.0.0.0/8 -j DROP
+
+# Allow all outbound traffic
+-A OUTPUT -j ACCEPT
+
+# Allow ping
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+
+# Allow salt data
+-A INPUT -m tcp -p tcp --dport 4505 -j ACCEPT
+-A INPUT -m tcp -p tcp --dport 4506 -j ACCEPT
+
+{% if 'ssh' in pillar -%}
+# Allow SSH traffic
+-A INPUT -p tcp --dport {{ pillar['ssh']['port'] }} --syn -m limit --limit 15/m --limit-burst 15 -j ACCEPT
+{% else %}
+-A INPUT -p tcp --dport 22 --syn -m limit --limit 15/m --limit-burst 15 -j ACCEPT
+{% endif -%}
+
+{% if pillar['iptables'] -%}
+
+{% if 'tcp_ports' in pillar['iptables'] -%}
+{% for port in pillar['iptables']['tcp_ports'] -%}
+-A INPUT -p tcp --dport {{ port }} -j ACCEPT
+{% endfor -%}
+{% endif -%}
+
+{% if 'forward' in pillar['iptables'] -%}
+-A INPUT -i {{ pillar['iptables']['forward']['interface'] }} -j ACCEPT
+-A INPUT -p {{ pillar['iptables']['forward']['protocol'] }} -j ACCEPT
+{% endif -%}
+
+{% if 'nat' in pillar['iptables'] %}
+*nat
+{% for interface in pillar['iptables']['nat'] %}
+-A POSTROUTING -o {{ interface }} -j MASQUERADE
+{% endfor %}
+COMMIT
+{% endif %}
+{% endif -%}
+
+# log iptables denied calls
+-A INPUT -m limit --limit 5/min -j LOG --log-prefix "iptables denied: " --log-level 7
+
+# Reject all other inbound - default deny unless explicitly allowed policy
+-A INPUT -j REJECT
+-A FORWARD -j REJECT
+
+COMMIT
+
