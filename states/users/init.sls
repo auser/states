@@ -9,7 +9,7 @@ include:
   group:
     - name: {{ group.name }}
     {% if group.gid is defined %}
-    - gid: {{ group.git }}
+    - gid: {{ group.gid }}
     {% endif %}
     - present
 {% endfor %}
