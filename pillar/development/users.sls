@@ -7,6 +7,10 @@ users:
     uid: 2018
     sudouser: True
     ssh_auth: ssh-rsa AUTHAUTH
+    groups:
+      - name: admins
+        gid: 1001
+      - name: dev
 
   git:
     uid: 3001

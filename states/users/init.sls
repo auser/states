@@ -5,9 +5,9 @@ include:
 {% set home = user.get('home', "/home/%s" % name) %}
 
 {% for group in user.get('groups', []) %}
-{{ group }}_group:
+{{ group.name }}_group:
   group:
-    - name: {{ group }}
+    - name: {{ group.name }}
     {% if group.gid is defined %}
     - gid: {{ group.git }}
     {% endif %}
@@ -32,12 +32,12 @@ include:
     {% if user.get('groups', [])|length > 0 %}
     - groups:
       {% for group in user.get('groups', []) %}
-        - {{ group }}
+        - {{ group.name }}
       {% endfor %}
     - require:
         - file: {{ name }}_user
       {% for group in user.get('groups', []) %}
-        - group: {{ group }}
+        - group: {{ group.name }}_group
       {% endfor %}
     {% endif %}
   {% if 'ssh_auth' in user %}
