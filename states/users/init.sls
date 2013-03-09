@@ -23,7 +23,7 @@ include:
   user.present:
     - name: {{ name }}
     - home: {{ home }}
-    - shell: {{ pillar.get('unprivileged_shell', '/bin/bash') }}
+    - shell: {{ user.get('unprivileged_shell', '/bin/bash') }}
     - uid: {{ user['uid'] }}
     - gid_from_name: True
     {% if 'fullname' in user %}
