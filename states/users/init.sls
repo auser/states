@@ -8,6 +8,9 @@ include:
 {{ group }}_group:
   group:
     - name: {{ group }}
+    {% if group.gid is defined %}
+    - gid: {{ group.git }}
+    {% endif %}
     - present
 {% endfor %}
 
@@ -61,6 +64,8 @@ sudoer-{{ name }}:
 {% endfor %}
 
 {% for user in pillar.get('absent_users', []) %}
+{% if user is defined %}
 {{ user }}:
   user.absent
+{% endif %}
 {% endfor %}
