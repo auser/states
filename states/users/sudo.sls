@@ -19,5 +19,5 @@ sudoer-defaults:
         - require:
           - pkg: sudo
         - text:
-          - Defaults    !secure_path
-
+          - Defaults   env_reset
+          - Defaults   secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

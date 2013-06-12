@@ -1,5 +1,5 @@
 # {{ pillar['message_do_not_modify'] }}
-
+{% set ssh = pillar.get('ssh', {}) -%}
 # This is the ssh client system-wide configuration file.  See
 # ssh_config(5) for more information.  This file provides defaults for
 # users, and the values can be changed in per-user configuration files
@@ -18,37 +18,89 @@
 # ssh_config(5) man page.
 
 Host *
-   ForwardAgent yes
-#   ForwardX11 no
-#   ForwardX11Trusted yes
-#   RhostsRSAAuthentication no
-#   RSAAuthentication yes
-#   PasswordAuthentication yes
-#   HostbasedAuthentication no
-#   GSSAPIAuthentication no
-#   GSSAPIDelegateCredentials no
-#   GSSAPIKeyExchange no
-#   GSSAPITrustDNS no
-#   BatchMode no
-#   CheckHostIP yes
-#   AddressFamily any
-#   ConnectTimeout 0
-#   StrictHostKeyChecking ask
-#   IdentityFile ~/.ssh/identity
-#   IdentityFile ~/.ssh/id_rsa
-#   IdentityFile ~/.ssh/id_dsa
-#   Port 22
-#   Protocol 2,1
-#   Cipher 3des
+   ForwardAgent {{ ssh.get('forward_agent', 'yes') }}
+{% if ssh['forward_x11'] is defined -%}
+  ForwardX11 {{ ssh['forward_x11'] }}
+{% endif -%}
+{% if ssh['forward_x11_trusted'] is defined -%}
+  ForwardX11Trusted {{ ssh['forward_x11_trusted'] }}
+{% endif -%}
+{% if ssh['rhosts_rsa_authentication'] is defined -%}
+  RhostsRSAAuthentication {{ ssh['rhosts_rsa_authentication'] }}
+{% endif -%}
+{% if ssh['rsa_authentication'] is defined -%}
+  RSAAuthentication {{ ssh['rsa_authentication'] }}
+{% endif -%}
+{% if ssh['password_authentication'] is defined -%}
+  PasswordAuthentication {{ ssh['password_authentication'] }}
+{% endif -%}
+{% if ssh['host_base_authentication'] is defined -%}
+  HostbasedAuthentication {{ ssh['host_base_authentication'] }}
+{% endif -%}
+{% if ssh['gssapi_authentication'] is defined -%}
+  GSSAPIAuthentication {{ ssh['gssapi_authentication'] }}
+{% endif -%}
+{% if ssh['gssapi_delegate_credentials'] is defined -%}
+  GSSAPIDelegateCredentials {{ ssh['gssapi_delegate_credentials'] }}
+{% endif -%}
+{% if ssh['gssapi_key_exchange'] is defined -%}
+  GSSAPIKeyExchange {{ ssh['gssapi_key_exchange'] }}
+{% endif -%}
+{% if ssh['gssapi_trust_dns'] is defined -%}
+  GSSAPITrustDNS {{ ssh['gssapi_trust_dns'] }}
+{% endif -%}
+{% if ssh['batch_mode'] is defined -%}
+  BatchMode {{ ssh['batch_mode'] }}
+{% endif -%}
+{% if ssh['check_host_ip'] is defined -%}
+  CheckHostIP {{ ssh['check_host_ip'] }}
+{% endif -%}
+{% if ssh['address_family'] is defined -%}
+  AddressFamily {{ ssh['address_family'] }}
+{% endif -%}
+{% if ssh['connect_timeout'] is defined -%}
+  ConnectTimeout {{ ssh['connect_timeout'] }}
+{% endif -%}
+{% if ssh['strict_host_key_checking'] is defined -%}
+  StrictHostKeyChecking {{ ssh['strict_host_key_checking'] }}
+{% endif -%}
+{% if ssh['identity_files'] is defined -%}
+{% for f in ssh['identity_files'] -%}
+  IdentityFile {{ f }}
+{% endfor -%}
+{% endif -%}
+{% if ssh['port'] is defined -%}
+  Port {{ ssh['port'] }}
+{% endif -%}
+{% if ssh['protocol'] is defined -%}
+  Protocol {{ ssh['protocol'] }}
+{% endif -%}
+{% if ssh['cipher'] is defined -%}
+  Cipher {{ ssh['cipher'] }}
+{% endif -%}
+
+{% if ssh['ciphers'] is defined -%}
+  Ciphers {{ ssh['ciphers']|join(',') }}
+{% endif -%}
 #   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
 #   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
-#   EscapeChar ~
-#   Tunnel no
-#   TunnelDevice any:any
-#   PermitLocalCommand no
-#   VisualHostKey no
-    SendEnv LANG LC_*
-    HashKnownHosts yes
-    GSSAPIAuthentication yes
-    GSSAPIDelegateCredentials no
+{% if ssh['escape_char'] is defined -%}
+  EscapeChar {{ ssh['escape_char'] }}
+{% endif -%}
+{% if ssh['tunnel'] is defined -%}
+  Tunnel {{ ssh['tunnel'] }}
+{% endif -%}
+{% if ssh['tunnel_device'] is defined -%}
+  TunnelDevice {{ ssh['tunnel_device'] }}
+{% endif -%}
+{% if ssh['permit_local_command'] is defined -%}
+  PermitLocalCommand {{ ssh['permit_local_command'] }}
+{% endif -%}
+{% if ssh['visual_host_key'] is defined -%}
+  VisualHostKey {{ ssh['visual_host_key'] }}
+{% endif -%}
+    # SendEnv LANG LC_*
+    # HashKnownHosts yes
+    # GSSAPIAuthentication yes
+    # GSSAPIDelegateCredentials no
 

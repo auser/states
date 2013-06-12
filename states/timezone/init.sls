@@ -1,6 +1,6 @@
 /etc/timezone:
 	file.append:
-		- text: {{ pillar['timezone'] }}
+		- text: {{ pillar.get('timezone', 'US/Pacific') }}
 	cmd.wait:
 		- cwd: /etc
 		- name: dpkg-reconfigure --frontend noninteractive tzdata

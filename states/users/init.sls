@@ -2,15 +2,15 @@ include:
   - users.sudo
 
 {% for name, user in pillar.get('users', {}).items() %}
+{% if user == None %}
+{% set user = {} %}
+{% endif %}
 {% set home = user.get('home', "/home/%s" % name) %}
 
 {% for group in user.get('groups', []) %}
-{{ group.name }}_group:
+{{ group }}_group:
   group:
-    - name: {{ group.name }}
-    {% if group.gid is defined %}
-    - gid: {{ group.gid }}
-    {% endif %}
+    - name: {{ group }}
     - present
 {% endfor %}
 
@@ -20,35 +20,85 @@ include:
     - user: {{ name }}
     - group: {{ name }}
     - mode: 0755
+    - require:
+      - user: {{ name }}
+      - group: {{ name }}
+  group.present:
+    - name: {{ name }}
   user.present:
     - name: {{ name }}
     - home: {{ home }}
-    - shell: {{ user.get('unprivileged_shell', '/bin/bash') }}
+    - shell: {{ pillar.get('shell', '/bin/bash') }}
+    {% if 'uid' in user -%}
     - uid: {{ user['uid'] }}
+    {% endif %}
     - gid_from_name: True
     {% if 'fullname' in user %}
     - fullname: {{ user['fullname'] }}
     {% endif %}
-    {% if user.get('groups', [])|length > 0 %}
     - groups:
+        - {{ name }}
       {% for group in user.get('groups', []) %}
-        - {{ group.name }}
+        - {{ group }}_group
       {% endfor %}
     - require:
-        - file: {{ name }}_user
+        - group: {{ name }}_user
       {% for group in user.get('groups', []) %}
-        - group: {{ group.name }}_group
+        - group: {{ group }}_group
       {% endfor %}
-    {% endif %}
-  {% if 'ssh_auth' in user %}
-  ssh_auth:
-    - present
+
+user_keydir_{{ name }}:
+  file.directory:
+    - name: {{ user.get('home', '/home/{0}'.format(name)) }}/.ssh
     - user: {{ name }}
-    - name: {{ user['ssh_auth'] }}
+    - group: {{ name }}
+    - mode: 744
+    - require:
+      - user: {{ name }}
+      - group: {{ name }}
+      {% for group in user.get('groups', []) %}
+      - group: {{ group }}
+      {% endfor %}
+
+  {% if 'privkey' in user %}
+user_{{ name }}_private_key:
+  file.managed:
+    - name: {{ user.get('home', '/home/{0}'.format(name)) }}/.ssh/id_rsa
+    - user: {{ name }}
+    - group: {{ name }}
+    - mode: 600
+    - source: salt://keys/{{ user['privkey'] }}
+    - require:
+      - user: {{ name }}_user
+      {% for group in user.get('groups', []) %}
+      - group: {{ group }}_group
+      {% endfor %}
+user_{{ name }}_public_key:
+  file.managed:
+    - name: {{ user.get('home', '/home/{0}'.format(name)) }}/.ssh/id_rsa.pub
+    - user: {{ name }}
+    - group: {{ name }}
+    - mode: 644
+    - source: salt://keys/{{ user['privkey'] }}.pub
+    - require:
+      - user: {{ name }}_user
+      {% for group in user.get('groups', []) %}
+      - group: {{ group }}_group
+      {% endfor %}
+  {% endif %}
+
+
+  {% if 'ssh_auth' in user %}
+  {% for auth in user['ssh_auth'] %}
+ssh_auth_{{ name }}_{{ loop.index0 }}:
+  ssh_auth.present:
+    - user: {{ name }}
+    - name: {{ auth }}
     - require:
         - file: {{ name }}_user
         - user: {{ name }}_user
-  {% endif %}
+{% endfor %}
+{% endif %}
 
 {% if 'sudouser' in user %}
 sudoer-{{ name }}:
@@ -64,8 +114,6 @@ sudoer-{{ name }}:
 {% endfor %}
 
 {% for user in pillar.get('absent_users', []) %}
-{% if user is defined %}
 {{ user }}:
   user.absent
-{% endif %}
 {% endfor %}
